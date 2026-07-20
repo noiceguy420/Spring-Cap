@@ -29,6 +29,6 @@ public class CartItem {
     private Integer quantity;
 
     public BigDecimal getTotalPrice(){
-        return BigDecimal.valueOf(quantity * product.getPrice());
+        return BigDecimal.valueOf(quantity.doubleValue() * product.getPrice().doubleValue());
     }
 }

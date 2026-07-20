@@ -29,7 +29,6 @@ public class Cart {
 
     @ManyToOne
     @JoinColumn(name = "user")
-    @NotNull
     private User user;
 
     public BigDecimal getTotalPrice(){

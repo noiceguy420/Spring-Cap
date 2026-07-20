@@ -3,7 +3,6 @@ package com.example.capstoneproject.services;
 import com.example.capstoneproject.config.JwtConfig;
 import com.example.capstoneproject.entities.User;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,31 +15,21 @@ public class JwtService {
     private final JwtConfig jwtConfig;
 
 
-    public String generateAccessToken(User user){
+    public Jwt generateAccessToken(User user){
         return generateToken(user, jwtConfig.getAccessTokenExpiration());
     }
-    public String generateRefreshToken(User user){
+    public Jwt generateRefreshToken(User user){
         return generateToken(user, jwtConfig.getRefreshTokenExpiration());
     }
-
-    private String generateToken(User user, long tokenExpiration) {
-
-        System.out.println("current system time: " + System.currentTimeMillis());
-        long newTime = tokenExpiration + System.currentTimeMillis();
-        System.out.println("token exp: " + newTime);
-        return Jwts.builder().subject(user.getId().toString())
-                .claim("Email", user.getEmail())
-                .issuedAt(new Date())
-                .expiration(new Date(newTime))
-                .signWith(jwtConfig.getSecretKey()).compact();
-    }
-
-    public boolean validateToken(String token){
-        try{
+    public Jwt parse(String token){
+        try {
             var claims = getClaims(token);
-            return claims.getExpiration().after(new Date());
+            return new Jwt(claims, jwtConfig.getSecretKey());
+        } catch (Exception e){
+            System.out.println("e = " + e);
+            System.out.println(e);
+            return null;
         }
-        catch (JwtException e) {return false;}
     }
 
     private Claims getClaims(String token) {
@@ -49,8 +38,23 @@ public class JwtService {
                 .parseSignedClaims(token).getPayload();
     }
 
-    public Integer getIdFromToken(String token){
-        return Integer.parseInt(getClaims(token).getSubject());
+    private Jwt generateToken(User user, long tokenExpiration) {
 
+        System.out.println("current system time: " + System.currentTimeMillis());
+        long newTime = tokenExpiration + System.currentTimeMillis();
+        System.out.println("exp date: " + new Date(newTime));
+        /*String token = Jwts.builder().subject(user.getId().toString())
+                .claim("Email", user.getEmail())
+                .claim("role", user.getRole())
+                .issuedAt(new Date())
+                .expiration(new Date(newTime))
+                .signWith(jwtConfig.getSecretKey()).compact();
+        return new Jwt(token, jwtConfig.getSecretKey());*/ //valid but another is used
+        var claims = Jwts.claims().subject(user.getId().toString())
+                .add("Email", user.getEmail())
+                .add("role", user.getRole())
+                .issuedAt(new Date())
+                .expiration(new Date(newTime)).build();
+        return new Jwt(claims, jwtConfig.getSecretKey());
     }
 }

@@ -20,12 +20,14 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CartService {
 
+    private final AuthService authService;
     private CartRepository cartRepository;
     private CartMapper cartMapper;
     private ProductRepository productRepository;
 
     public CartDto createCart(){
         var cart = new Cart();
+        cart.setUser(authService.getCurrentUser());
         cartRepository.save(cart);
         return cartMapper.toDto(cart);
     }

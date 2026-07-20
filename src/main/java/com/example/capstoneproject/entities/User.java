@@ -19,6 +19,10 @@ public class User {
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @Size(max = 100)
     @NotNull
     @Column(name = "Email", nullable = false, length = 100)

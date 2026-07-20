@@ -5,6 +5,8 @@ import com.example.capstoneproject.dtos.UserDto;
 import com.example.capstoneproject.entities.User;
 import com.example.capstoneproject.mappers.UserMapper;
 import com.example.capstoneproject.repositories.UserRepository;
+import com.example.capstoneproject.services.AuthService;
+import com.example.capstoneproject.services.Jwt;
 import com.example.capstoneproject.services.JwtService;
 import com.example.capstoneproject.dtos.JwtResponse;
 import com.example.capstoneproject.dtos.UserLoginReq;
@@ -29,6 +31,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final JwtConfig jwtConfig;
+    private final AuthService authService;
 
 
     @PostMapping("/login")
@@ -36,27 +39,27 @@ public class AuthController {
         authManager.authenticate(new UsernamePasswordAuthenticationToken(
                 req.getEmail(), req.getPassword()));
         User user = userRepository.findByEmail(req.getEmail()).orElseThrow();
-        String accessToken = jwtService.generateAccessToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
+        Jwt accessToken = jwtService.generateAccessToken(user);
+        Jwt refreshToken = jwtService.generateRefreshToken(user);
 
-        var cookie = new Cookie("refreshToken", refreshToken);
+        var cookie = new Cookie("refreshToken", refreshToken.toString());
         cookie.setHttpOnly(true);
         cookie.setPath("/auth/refresh");
         cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
         cookie.setSecure(true);
         response.addCookie(cookie);
-        return ResponseEntity.ok(new JwtResponse(accessToken));
+        return ResponseEntity.ok(new JwtResponse(accessToken.toString()));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<JwtResponse> refresh(@CookieValue(value = "refreshToken") String refreshToken){
-        if(!jwtService.validateToken(refreshToken))
+        Jwt refreshJwt = jwtService.parse(refreshToken);
+        if(refreshJwt == null || refreshJwt.isExpired())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        int uid = jwtService.getIdFromToken(refreshToken);
-        User user = userRepository.findById(uid).orElseThrow();
-        var accessToken = jwtService.generateAccessToken(user);
+        User user = userRepository.findById(refreshJwt.getUserId()).orElseThrow();
+        Jwt accessJwt = jwtService.generateAccessToken(user);
 
-        return ResponseEntity.ok(new JwtResponse(accessToken));
+        return ResponseEntity.ok(new JwtResponse(accessJwt.toString()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -66,8 +69,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserDto> me(){
-        var uid = (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        var user = userRepository.findById(uid).orElse(null);
+        User user = authService.getCurrentUser();
         if(user == null)
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(userMapper.toDto(user));
