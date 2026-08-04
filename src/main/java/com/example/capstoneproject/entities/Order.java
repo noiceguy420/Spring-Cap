@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
@@ -18,6 +19,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "orders", schema = "capstone")
+@NoArgsConstructor
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +40,22 @@ public class Order {
     @Column(name = "total_price")
     private BigDecimal totalPrice;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "order", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<OrderItem> items = new LinkedHashSet<>();
+
+    public static Order fromCart(Cart cart, User user){
+        var order = new Order();
+        order.setCustomer(user);
+        order.setStatus(OrderStatus.PENDING);
+        order.setTotalPrice(cart.getTotalPrice());
+
+        cart.getCartItems().forEach(item ->{
+            var orderItem = new OrderItem(order, item.getProduct(), item.getQuantity());
+            order.items.add(orderItem);
+        });
+        return order;
+    }
+    public boolean isPlacedBy(User usr){
+        return this.customer.equals(usr);
+    }
 }

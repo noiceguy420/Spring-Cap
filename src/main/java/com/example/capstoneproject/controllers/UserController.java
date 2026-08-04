@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controllers;
 
 import com.example.capstoneproject.dtos.AddUserReq;
+import com.example.capstoneproject.dtos.ErrorDto;
 import com.example.capstoneproject.dtos.UserDto;
 import com.example.capstoneproject.entities.Role;
 import com.example.capstoneproject.entities.User;
@@ -33,7 +34,7 @@ public class UserController {
     @PostMapping("/new User")
     public ResponseEntity<?> RegisterUser(@Valid @RequestBody AddUserReq req, UriComponentsBuilder uriBuilder){
         if(userRepository.existsByEmail(req.getEmail())) {
-            return ResponseEntity.badRequest().body(Map.of("email", "email is already registered"));
+            return ResponseEntity.badRequest().body(new ErrorDto("email not found"));
         }
         User user = userMapper.reqToUser(req);
         user.setPassword(passwordEncoder.encode(user.getPassword()));

@@ -1,13 +1,10 @@
 package com.example.capstoneproject.controllers;
 
+import com.example.capstoneproject.dtos.*;
 import com.example.capstoneproject.exceptions.CartItemNotFoundException;
 import com.example.capstoneproject.exceptions.CartNotFoundException;
 import com.example.capstoneproject.exceptions.ProductNotFoundException;
 import com.example.capstoneproject.services.CartService;
-import com.example.capstoneproject.dtos.AddItemRequest;
-import com.example.capstoneproject.dtos.CartDto;
-import com.example.capstoneproject.dtos.CartItemDto;
-import com.example.capstoneproject.dtos.UpdateCartItemRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -68,15 +64,15 @@ public class cartController {
     }
 
     @ExceptionHandler(CartNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleCartNotFoundException(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "cart not found"));
+    public ResponseEntity<ErrorDto> handleCartNotFoundException(){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("cart not found"));
     }
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleProductNotFoundException(){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Product not found"));
+    public ResponseEntity<ErrorDto> handleProductNotFoundException(){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto("Product not found"));
     }
     @ExceptionHandler(CartItemNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleCartItemNotFoundException(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "item not found in cart"));
+    public ResponseEntity<ErrorDto> handleCartItemNotFoundException(){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("item not found in cart"));
     }
 }
