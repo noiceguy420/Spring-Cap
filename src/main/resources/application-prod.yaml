@@ -3,4 +3,4 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
