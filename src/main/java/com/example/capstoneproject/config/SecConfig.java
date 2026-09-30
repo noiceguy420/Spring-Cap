@@ -46,7 +46,8 @@ public class SecConfig {
                     .anyRequest().authenticated())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(e ->
-            {e.authenticationEntryPoint(
+            {
+                e.authenticationEntryPoint(
                         new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
                 e.accessDeniedHandler(((request, response, accessDeniedException) ->
                         response.setStatus(HttpStatus.FORBIDDEN.value())));

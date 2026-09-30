@@ -13,9 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.net.URI;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,7 +25,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping
-    public Iterable<UserDto> getAllusers(){
+    public Iterable<UserDto> getAllUsers(){
         return userRepository.findAll().stream().map(userMapper::toDto).collect(Collectors.toList());
     }
 

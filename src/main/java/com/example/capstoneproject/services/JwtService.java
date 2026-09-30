@@ -26,7 +26,6 @@ public class JwtService {
             var claims = getClaims(token);
             return new Jwt(claims, jwtConfig.getSecretKey());
         } catch (Exception e){
-            System.out.println("e = " + e);
             System.out.println(e);
             return null;
         }
