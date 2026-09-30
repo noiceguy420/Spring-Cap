@@ -37,7 +37,6 @@ public class UserController {
         User user = userMapper.reqToUser(req);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.USER);
-        System.out.println(user.getPassword());
         userRepository.save(user);
 
         URI uri = uriBuilder.path("/users/{id}").buildAndExpand(user.getId()).toUri();

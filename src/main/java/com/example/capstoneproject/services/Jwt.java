@@ -7,15 +7,16 @@ import io.jsonwebtoken.Jwts;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
-
 public class Jwt {
     private final Claims claims;
     private final SecretKey key;
+    private final LoggerService logger;
 
     public Jwt(Claims claims, SecretKey key){
-        System.out.println("key = " + key);
         this.claims = claims;
         this.key = key;
+        logger = new LoggerService();
+        logger.log("key = " + key);
     }
 
     public boolean isExpired(){

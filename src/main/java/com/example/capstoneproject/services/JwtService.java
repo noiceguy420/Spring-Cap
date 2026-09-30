@@ -13,6 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class JwtService {
     private final JwtConfig jwtConfig;
+    private final LoggerService logger;
 
 
     public Jwt generateAccessToken(User user){
@@ -26,7 +27,7 @@ public class JwtService {
             var claims = getClaims(token);
             return new Jwt(claims, jwtConfig.getSecretKey());
         } catch (Exception e){
-            System.out.println(e);
+            logger.log(e.getMessage());
             return null;
         }
     }
@@ -39,9 +40,9 @@ public class JwtService {
 
     private Jwt generateToken(User user, long tokenExpiration) {
 
-        System.out.println("current system time: " + System.currentTimeMillis());
+        logger.log("current system time: " + System.currentTimeMillis());
         long newTime = tokenExpiration + System.currentTimeMillis();
-        System.out.println("exp date: " + new Date(newTime));
+        logger.log("exp date: " + new Date(newTime));
         /*String token = Jwts.builder().subject(user.getId().toString())
                 .claim("Email", user.getEmail())
                 .claim("role", user.getRole())
